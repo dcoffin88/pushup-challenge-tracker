@@ -1,0 +1,20 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: push-up-challenge-tracker:prod
+    container_name: push-up-challenge-tracker
+    hostname: push-up-challenge-tracker
+    networks:
+      - net
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./pushup_challenge.db:/app/pushup_challenge.db
+
+networks:
+  net:
+    driver: bridge

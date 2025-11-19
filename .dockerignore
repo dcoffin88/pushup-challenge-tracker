@@ -1,0 +1,11 @@
+node_modules
+dist
+.env.local
+.gitignore
+Dockerfile
+Dockerfile.dev
+compose.yml
+README.md
+!nginx.conf
+pushup_challenge.db
+pushup_challenge.db-journal

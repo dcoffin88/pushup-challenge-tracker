@@ -1,0 +1,38 @@
+{
+  "name": "push-up-challenge-tracker",
+  "description": "Full-stack tracker for a progressive push-up challenge with multi-user PIN access and break-day management.",
+  "version": "0.1.0",
+  "private": false,
+  "license": "MIT",
+  "author": "Doug Coffin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dcoffin88/push-up-challenge-tracker"
+  },
+  "scripts": {
+    "dev": "concurrently \"npm run start:server\" \"vite\"",
+    "start:server": "ts-node --project server/tsconfig.json server/index.ts",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.14.0",
+    "@types/sqlite3": "^3.1.11",
+    "@vitejs/plugin-react": "^5.0.0",
+    "concurrently": "^8.2.2",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.4.1",
+    "tailwindcss": "^3.4.17"
+  }
+}

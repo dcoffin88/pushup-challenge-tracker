@@ -1,0 +1,5 @@
+{
+  "name": "Push-up Challenge Tracker",
+  "description": "A web application to track progress in a year-long push-up challenge. Users log their daily push-ups, corresponding to the day of the year, can take monthly break days, and compete with others.",
+  "requestFramePermissions": []
+}

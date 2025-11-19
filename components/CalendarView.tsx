@@ -1,0 +1,124 @@
+
+import React, { useState, useMemo } from 'react';
+import type { LogEntry, LogStatus } from '../types';
+import { getDateFromChallengeDay } from '../utils/dateHelpers';
+
+interface CalendarViewProps {
+    logs: { [dayOfChallenge: number]: LogEntry };
+    challengeStartDate: string;
+    challengeDay: number;
+}
+
+const statusColors: Record<LogStatus, string> = {
+    completed: 'bg-green-500 hover:bg-green-400',
+    missed: 'bg-red-500 hover:bg-red-400',
+    break: 'bg-yellow-500 hover:bg-yellow-400',
+    pending: 'bg-gray-700 hover:bg-gray-600',
+    today: 'bg-cyan-500 hover:bg-cyan-400 ring-2 ring-cyan-300',
+    in_progress: 'bg-blue-500 hover:bg-blue-400',
+    over_achieved: 'bg-purple-500 hover:bg-purple-400',
+};
+
+const CalendarDay: React.FC<{ log: LogEntry; currentChallengeDay: number }> = ({ log, currentChallengeDay }) => {
+    const isToday = log.dayOfChallenge === currentChallengeDay;
+    const isPast = log.dayOfChallenge < currentChallengeDay;
+
+    let displayStatus: LogStatus = log.status;
+    if (log.status === 'break') {
+        displayStatus = 'break';
+    } else if (log.pushupsDone > log.goal) {
+        displayStatus = 'over_achieved';
+    } else if (isToday && log.status === 'completed') {
+        displayStatus = 'completed';
+    } else if (isToday) {
+        displayStatus = 'today';
+    } else if (log.status === 'pending' && isPast) {
+        displayStatus = 'missed';
+    } else if (log.pushupsDone > 0 && log.status !== 'completed') {
+        displayStatus = 'in_progress';
+    }
+
+    const colorClass = statusColors[displayStatus];
+
+    return (
+        <div className="relative group">
+            <div className={`w-full aspect-square rounded ${colorClass} transition-colors`}></div>
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                <p>Day {log.dayOfChallenge}: {log.goal} push-ups</p>
+                <p>Date: {log.date}</p>
+                <p className="capitalize">Status: {displayStatus.replace('_', ' ')}</p>
+                {displayStatus === 'in_progress' && <p>{log.pushupsDone} done</p>}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900"></div>
+            </div>
+        </div>
+    );
+};
+
+const CalendarView: React.FC<CalendarViewProps> = ({ logs, challengeStartDate, challengeDay }) => {
+    const logsArray = Object.values(logs);
+    if (!challengeStartDate || logsArray.length === 0) {
+        return null;
+    }
+
+    const startYear = new Date(challengeStartDate).getUTCFullYear();
+
+    const months = useMemo(() => {
+        return Array.from({ length: 12 }, (_, i) => {
+            const dateForMonth = new Date(Date.UTC(startYear, i));
+            const monthName = dateForMonth.toLocaleString('default', { month: 'long', timeZone: 'UTC' });
+            const daysInMonth = logsArray.filter((log: LogEntry) => {
+                 const logDate = getDateFromChallengeDay(log.dayOfChallenge, challengeStartDate);
+                 return logDate.getUTCMonth() === i;
+            });
+            return { name: `${monthName} ${dateForMonth.getUTCFullYear()}`, days: daysInMonth, monthIndex: i, year: dateForMonth.getUTCFullYear() };
+        }).filter(m => m.days.length > 0);
+    }, [logsArray, challengeStartDate, startYear]);
+
+    const currentMonthIndex = useMemo(() => {
+        const today = getDateFromChallengeDay(challengeDay, challengeStartDate);
+        return today.getUTCMonth();
+    }, [challengeDay, challengeStartDate]);
+
+    const [collapsedMonths, setCollapsedMonths] = useState<number[]>(() => {
+        return months.filter(m => m.monthIndex < currentMonthIndex).map(m => m.monthIndex);
+    });
+
+    const toggleMonth = (monthIndex: number) => {
+        setCollapsedMonths(prev => 
+            prev.includes(monthIndex) 
+                ? prev.filter(m => m !== monthIndex) 
+                : [...prev, monthIndex]
+        );
+    };
+
+    return (
+        <div className="bg-gray-800/50 p-4 sm:p-6 rounded-xl shadow-inner mt-8">
+            <h2 className="text-xl font-bold text-white mb-4">Yearly Progress</h2>
+            <div className="space-y-6">
+                {months.map((month) => {
+                    const isCollapsed = collapsedMonths.includes(month.monthIndex);
+                    return (
+                        <div key={`${month.year}-${month.monthIndex}`}>
+                            <button 
+                                className="text-lg font-semibold text-cyan-300 mb-3 w-full text-left flex justify-between items-center"
+                                onClick={() => toggleMonth(month.monthIndex)}
+                            >
+                                <span>{month.name}</span>
+                                <span>{isCollapsed ? '▼' : '▲'}</span>
+                            </button>
+                            {!isCollapsed && (
+                                <div className="grid grid-cols-7 gap-1.5 sm:gap-2">
+                                    {month.days.map(log => (
+                                        <CalendarDay key={log.dayOfChallenge} log={log} currentChallengeDay={challengeDay} />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+export default CalendarView;
