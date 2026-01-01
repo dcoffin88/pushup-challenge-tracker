@@ -35,7 +35,10 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogPushups, onUseBreakDay
 
     const stats = useMemo(() => {
         const logs = Object.values(user.logs);
-        const completedDays = logs.filter((l: LogEntry) => l.status === 'completed' || l.status === 'over_achieved').length;
+        const completedDays = logs.filter((l: LogEntry) => {
+            if (l.status === 'completed' || l.status === 'over_achieved') return true;
+            return l.pushupsDone >= l.goal; // fallback if status wasn’t updated
+        }).length;
         const totalPushups = logs.reduce((sum, log: LogEntry) => sum + log.pushupsDone, 0);
         return { completedDays, totalPushups };
     }, [user.logs]);
