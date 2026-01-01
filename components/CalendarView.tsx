@@ -1,7 +1,7 @@
 
 import React, { useState, useMemo } from 'react';
 import type { LogEntry, LogStatus } from '../types';
-import { getDateFromChallengeDay } from '../utils/dateHelpers';
+import { getDateFromChallengeDay, getMonthFromDate } from '../utils/dateHelpers';
 
 interface CalendarViewProps {
     logs: { [dayOfChallenge: number]: LogEntry };
@@ -68,7 +68,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ logs, challengeStartDate, c
             const monthName = dateForMonth.toLocaleString('default', { month: 'long', timeZone: 'UTC' });
             const daysInMonth = logsArray.filter((log: LogEntry) => {
                  const logDate = getDateFromChallengeDay(log.dayOfChallenge, challengeStartDate);
-                 return logDate.getUTCMonth() === i;
+                 return getMonthFromDate(logDate) === i;
             });
             return { name: `${monthName} ${dateForMonth.getUTCFullYear()}`, days: daysInMonth, monthIndex: i, year: dateForMonth.getUTCFullYear() };
         }).filter(m => m.days.length > 0);
@@ -76,7 +76,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ logs, challengeStartDate, c
 
     const currentMonthIndex = useMemo(() => {
         const today = getDateFromChallengeDay(challengeDay, challengeStartDate);
-        return today.getUTCMonth();
+        return getMonthFromDate(today);
     }, [challengeDay, challengeStartDate]);
 
     const [collapsedMonths, setCollapsedMonths] = useState<number[]>(() => {

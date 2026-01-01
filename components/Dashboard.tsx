@@ -26,18 +26,16 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogPushups, onUseBreakDay
     const [pushupInput, setPushupInput] = useState('');
     const [showAdminPanel, setShowAdminPanel] = useState(false);
 
-    const todayDateString = challengeStartDate ? toYyyyMmDd(new Date()) : null;
-    const todayLog = todayDateString
-        ? Object.values(user.logs).find((log) => log.date === todayDateString) || user.logs[challengeDay]
-        : user.logs[challengeDay];
-    const activeChallengeDay = todayLog?.dayOfChallenge ?? challengeDay;
+    const activeChallengeDay = challengeDay;
+    const todayLog = user.logs[activeChallengeDay];
     const dateOfChallengeDay = challengeStartDate ? getDateFromChallengeDay(activeChallengeDay, challengeStartDate) : new Date();
+    const todayDateString = challengeStartDate ? toYyyyMmDd(dateOfChallengeDay) : null;
     const currentMonth = getMonthFromDate(dateOfChallengeDay);
     const breakDayAvailable = (user.breakDaysUsed[currentMonth] || 0) < 1;
 
     const stats = useMemo(() => {
         const logs = Object.values(user.logs);
-        const completedDays = logs.filter((l: LogEntry) => l.status === 'completed').length;
+        const completedDays = logs.filter((l: LogEntry) => l.status === 'completed' || l.status === 'over_achieved').length;
         const totalPushups = logs.reduce((sum, log: LogEntry) => sum + log.pushupsDone, 0);
         return { completedDays, totalPushups };
     }, [user.logs]);

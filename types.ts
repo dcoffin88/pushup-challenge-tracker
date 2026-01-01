@@ -1,4 +1,3 @@
-
 export type LogStatus = 'completed' | 'missed' | 'break' | 'pending' | 'today' | 'in_progress' | 'over_achieved';
 
 export interface LogEntry {

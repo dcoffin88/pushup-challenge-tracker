@@ -116,6 +116,12 @@ const convertLocalDateToUtc = (localDate: Date): Date => {
     return new Date(candidate);
 };
 
+const getStartOfDayUtcForTimezone = (date: Date): Date => {
+    const parts = getTimezoneParts(date);
+    const localMidnight = new Date(Date.UTC(Number(parts.year), Number(parts.month) - 1, Number(parts.day)));
+    return convertLocalDateToUtc(localMidnight);
+};
+
 const addDaysLocal = (localDate: Date, days: number) =>
     new Date(localDate.getTime() + days * MS_PER_DAY);
 
@@ -158,6 +164,12 @@ export const getDateFromChallengeDay = (dayOfChallenge: number, startDateString:
     return convertLocalDateToUtc(targetLocal);
 };
 
+export const getLocalDateStringFromChallengeDay = (dayOfChallenge: number, startDateString: string): string => {
+    const startLocal = getConfiguredStartLocalDate(startDateString);
+    const targetLocal = addDaysLocal(startLocal, dayOfChallenge - 1);
+    return `${targetLocal.getUTCFullYear()}-${pad(targetLocal.getUTCMonth() + 1)}-${pad(targetLocal.getUTCDate())}`;
+};
+
 export const getChallengeDayInfo = (startDateString: string | null) => {
     if (!startDateString) {
         return {
@@ -168,27 +180,25 @@ export const getChallengeDayInfo = (startDateString: string | null) => {
         };
     }
 
+    // Work entirely in the configured timezone's calendar days to avoid UTC rolling the date early/late.
     const startLocal = getConfiguredStartLocalDate(startDateString);
-    const startDateUTC = convertLocalDateToUtc(startLocal);
     const now = new Date();
+    const todayLocal = getConfiguredStartLocalDate(toYyyyMmDd(now));
 
     const startLocalYear = startLocal.getUTCFullYear();
     const daysInChallenge = getDaysInYear(startLocalYear);
     const endLocal = addDaysLocal(startLocal, daysInChallenge - 1);
 
-    const nowParts = getTimezoneParts(now);
-    const nowLocal = new Date(Date.UTC(Number(nowParts.year), Number(nowParts.month) - 1, Number(nowParts.day)));
-
-    if (nowLocal.getTime() < startLocal.getTime()) {
+    if (todayLocal.getTime() < startLocal.getTime()) {
         return {
             challengeDay: 0,
             isChallengeActive: false,
-            timeUntilStart: startDateUTC.getTime() - now.getTime(),
+            timeUntilStart: convertLocalDateToUtc(startLocal).getTime() - now.getTime(),
             daysInChallenge,
         };
     }
 
-    if (nowLocal.getTime() > endLocal.getTime()) {
+    if (todayLocal.getTime() > endLocal.getTime()) {
         return {
             challengeDay: -1,
             isChallengeActive: false,
@@ -197,7 +207,7 @@ export const getChallengeDayInfo = (startDateString: string | null) => {
         };
     }
 
-    const diffDays = Math.floor((nowLocal.getTime() - startLocal.getTime()) / MS_PER_DAY) + 1;
+    const diffDays = Math.floor((todayLocal.getTime() - startLocal.getTime()) / MS_PER_DAY) + 1;
 
     return {
         challengeDay: diffDays,

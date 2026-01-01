@@ -2,7 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import db from './db';
 import { AppData, User, LogEntry } from '../types';
-import { getChallengeDayInfo, getDateFromChallengeDay, toYyyyMmDd, getMonthFromDate, setConfiguredTimezone, isValidTimezoneId } from '../utils/dateHelpers';
+import { getChallengeDayInfo, getDateFromChallengeDay, getLocalDateStringFromChallengeDay, toYyyyMmDd, getMonthFromDate, setConfiguredTimezone, isValidTimezoneId } from '../utils/dateHelpers';
 
 type ChallengeRow = { challengeStartDate: string | null; currentYear: number; timezoneOffsetMinutes?: number; timezoneId?: string };
 
@@ -137,10 +137,10 @@ app.post('/api/user', (req, res) => {
                 };
                 const { daysInChallenge } = getChallengeDayInfo(startDateForLogs);
                 for (let i = 1; i <= daysInChallenge; i++) {
-                    const date = getDateFromChallengeDay(i, startDateForLogs);
+                    const dateString = getLocalDateStringFromChallengeDay(i, startDateForLogs);
                     newUser.logs[i] = {
                         dayOfChallenge: i,
-                        date: toYyyyMmDd(date),
+                        date: dateString,
                         pushupsDone: 0,
                         goal: i,
                         status: 'pending',
@@ -271,10 +271,10 @@ app.post('/api/challenge', (req, res) => {
                         } else {
                             const logs: { [dayOfChallenge: number]: LogEntry } = {};
                             for (let i = 1; i <= daysInChallenge; i++) {
-                                const date = getDateFromChallengeDay(i, startDate);
+                                const dateString = getLocalDateStringFromChallengeDay(i, startDate);
                                 logs[i] = {
                                     dayOfChallenge: i,
-                                    date: toYyyyMmDd(date),
+                                    date: dateString,
                                     pushupsDone: 0,
                                     goal: i,
                                     status: 'pending',
@@ -327,10 +327,10 @@ app.post('/api/reset-user', (req, res) => {
             }
             const logs: { [dayOfChallenge: number]: LogEntry } = {};
             for (let i = 1; i <= daysInChallenge; i++) {
-                const date = getDateFromChallengeDay(i, challengeStartDate);
+                const dateString = getLocalDateStringFromChallengeDay(i, challengeStartDate);
                 logs[i] = {
                     dayOfChallenge: i,
-                    date: toYyyyMmDd(date),
+                    date: dateString,
                     pushupsDone: 0,
                     goal: i,
                     status: 'pending',
