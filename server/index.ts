@@ -125,17 +125,13 @@ app.post('/api/user', (req, res) => {
                 applyTimezoneFromRow(challengeData);
                 const startDateForLogs = challengeData.challengeStartDate || new Date().toISOString().split('T')[0];
                 const challengeInfo = getChallengeDayInfo(startDateForLogs);
-                if (challengeData.challengeStartDate && challengeInfo.isChallengeActive) {
-                    res.status(403).json({ error: 'Cannot create new users after the challenge has started.' });
-                    return;
-                }
                 const newUser: User = {
                     initials: upperInitials,
                     pin,
                     logs: {},
                     breakDaysUsed: { 0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0 },
                 };
-                const { daysInChallenge } = getChallengeDayInfo(startDateForLogs);
+                const { daysInChallenge } = challengeInfo;
                 for (let i = 1; i <= daysInChallenge; i++) {
                     const dateString = getLocalDateStringFromChallengeDay(i, startDateForLogs);
                     newUser.logs[i] = {

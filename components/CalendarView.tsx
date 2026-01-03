@@ -46,8 +46,8 @@ const CalendarDay: React.FC<{ log: LogEntry; currentChallengeDay: number }> = ({
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                 <p>Day {log.dayOfChallenge}: {log.goal} push-ups</p>
                 <p>Date: {log.date}</p>
+                <p>Push-ups done: {log.pushupsDone}</p>
                 <p className="capitalize">Status: {displayStatus.replace('_', ' ')}</p>
-                {displayStatus === 'in_progress' && <p>{log.pushupsDone} done</p>}
                 <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900"></div>
             </div>
         </div>

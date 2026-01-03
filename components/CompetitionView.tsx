@@ -13,7 +13,11 @@ interface CompetitionViewProps {
 
 const UserCompetitionProfile: React.FC<{user: User; challengeDay: number; todayDateString?: string}> = ({ user, challengeDay, todayDateString }) => {
     const logs = Object.values(user.logs);
-    const completedDays = logs.filter((l: LogEntry) => l.status === 'completed').length;
+    // Treat over-achieved or any log that meets/exceeds the goal as completed for rate calculations
+    const completedDays = logs.filter((l: LogEntry) => {
+        if (l.status === 'completed' || l.status === 'over_achieved') return true;
+        return l.pushupsDone >= l.goal;
+    }).length;
     const totalPushups = logs.reduce((sum, log: LogEntry) => sum + log.pushupsDone, 0);
     const completionRate = challengeDay > 0 ? ((completedDays / challengeDay) * 100).toFixed(1) : "0.0";
     

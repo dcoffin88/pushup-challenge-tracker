@@ -93,7 +93,9 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onLogin, getOrCreateUser, isC
 				)}
 
 				<p className="text-xs text-gray-500 mt-4">
-					{isChallengeStarted ? '' : 'If your initials don’t exist, a new profile will be created.'}
+					{isChallengeStarted
+                        ? 'If your initials do not exist, we will create a new profile even though the challenge is already underway.'
+                        : 'If your initials do not exist, a new profile will be created.'}
 				</p>
             </div>
         </div>
