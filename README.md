@@ -15,8 +15,6 @@ Track a 365-day progressive push-up challenge with per-user PINs, break-day mana
 
 ## Screenshots
 
-> Replace these placeholders with actual captures once you have them handy.
-
 <div align="center">
   <img src="docs/screenshots/login.png" alt="Login Screen" width="45%" />
   <img src="docs/screenshots/setup.png" alt="Initial Setup" width="45%" />
