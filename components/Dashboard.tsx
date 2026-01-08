@@ -35,13 +35,15 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogPushups, onUseBreakDay
 
     const stats = useMemo(() => {
         const logs = Object.values(user.logs);
-        const completedDays = logs.filter((l: LogEntry) => {
+        const logsToDate = logs.filter((log) => log.dayOfChallenge <= activeChallengeDay);
+        const completedDays = logsToDate.filter((l: LogEntry) => {
             if (l.status === 'completed' || l.status === 'over_achieved') return true;
-            return l.pushupsDone >= l.goal; // fallback if status wasn’t updated
+            return l.pushupsDone >= l.goal; // fallback if status wasn't updated
         }).length;
-        const totalPushups = logs.reduce((sum, log: LogEntry) => sum + log.pushupsDone, 0);
-        return { completedDays, totalPushups };
-    }, [user.logs]);
+        const totalActualToDate = logsToDate.reduce((sum, log: LogEntry) => sum + log.pushupsDone, 0);
+        const totalGoalToDate = logsToDate.reduce((sum, log: LogEntry) => sum + log.goal, 0);
+        return { completedDays, totalActualToDate, totalGoalToDate };
+    }, [user.logs, activeChallengeDay]);
 
     const handleAddPushups = () => {
         const count = parseInt(pushupInput, 10);
@@ -114,8 +116,9 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogPushups, onUseBreakDay
                     </div>
                 </header>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                    <StatsCard title="Total Push-ups" value={stats.totalPushups.toLocaleString()} icon={<ChartBarIcon className="w-8 h-8 text-cyan-300" />} />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <StatsCard title="Total Goal to date" value={stats.totalGoalToDate.toLocaleString()} icon={<ChartBarIcon className="w-8 h-8 text-cyan-300" />} />
+                    <StatsCard title="Total Actual to date" value={stats.totalActualToDate.toLocaleString()} icon={<ChartBarIcon className="w-8 h-8 text-cyan-300" />} />
                     <StatsCard title="Days Completed" value={stats.completedDays} icon={<CheckCircleIcon className="w-8 h-8 text-green-400" />} />
                     <StatsCard title="Break Days Left (Month)" value={breakDayAvailable ? 1 : 0} icon={<CalendarIcon className="w-8 h-8 text-yellow-400" />} />
                 </div>

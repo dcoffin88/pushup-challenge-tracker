@@ -15,12 +15,14 @@ interface CompetitionViewProps {
 
 const UserCompetitionProfile: React.FC<{user: User; challengeDay: number; challengeStartDate: string; todayDateString?: string}> = ({ user, challengeDay, challengeStartDate, todayDateString }) => {
     const logs = Object.values(user.logs);
+    const logsToDate = logs.filter((log) => log.dayOfChallenge <= challengeDay);
     // Treat over-achieved or any log that meets/exceeds the goal as completed for rate calculations
-    const completedDays = logs.filter((l: LogEntry) => {
+    const completedDays = logsToDate.filter((l: LogEntry) => {
         if (l.status === 'completed' || l.status === 'over_achieved') return true;
         return l.pushupsDone >= l.goal;
     }).length;
-    const totalPushups = logs.reduce((sum, log: LogEntry) => sum + log.pushupsDone, 0);
+    const totalActualToDate = logsToDate.reduce((sum, log: LogEntry) => sum + log.pushupsDone, 0);
+    const totalGoalToDate = logsToDate.reduce((sum, log: LogEntry) => sum + log.goal, 0);
     const completionRate = challengeDay > 0 ? ((completedDays / challengeDay) * 100).toFixed(1) : "0.0";
     
     const todayLog = todayDateString
@@ -53,8 +55,13 @@ const UserCompetitionProfile: React.FC<{user: User; challengeDay: number; challe
 
             <div className="space-y-3">
                  <StatsCard 
-                    title="Total Push-ups"
-                    value={totalPushups.toLocaleString()}
+                    title="Total Goal to date"
+                    value={totalGoalToDate.toLocaleString()}
+                    icon={<ChartBarIcon className="w-6 h-6 text-cyan-300" />}
+                />
+                <StatsCard 
+                    title="Total Actual to date"
+                    value={totalActualToDate.toLocaleString()}
                     icon={<ChartBarIcon className="w-6 h-6 text-cyan-300" />}
                 />
                 <StatsCard 
