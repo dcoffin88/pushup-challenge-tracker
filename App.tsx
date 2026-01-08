@@ -6,6 +6,9 @@ import Dashboard from './components/Dashboard';
 import CountdownScreen from './components/CountdownScreen';
 import { getChallengeDayInfo, getDateFromChallengeDay } from './utils/dateHelpers';
 
+const SESSION_MAX_MS = 60 * 60 * 1000;
+const SESSION_LAST_ACTIVE_KEY = 'sessionLastActiveAt';
+
 const App: React.FC = () => {
     const { loading, data, getOrCreateUser, logPushups, useBreakDay, getUsers, updateUser, setChallengeStartDate } = useUserData();
     const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -35,10 +38,12 @@ const App: React.FC = () => {
             alert("The challenge has not been configured by the admin yet. Please wait.");
             return;
         }
+        localStorage.setItem(SESSION_LAST_ACTIVE_KEY, Date.now().toString());
         setCurrentUser(user);
     }, [data]);
 
     const handleLogout = useCallback(() => {
+        localStorage.removeItem(SESSION_LAST_ACTIVE_KEY);
         setCurrentUser(null);
     }, []);
 
