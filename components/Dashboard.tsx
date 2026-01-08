@@ -195,11 +195,14 @@ const Dashboard: React.FC<DashboardProps> = ({ user, onLogPushups, onUseBreakDay
                         user1={user}
                         user2={selectedOpponent}
                         challengeDay={activeChallengeDay}
+                        challengeStartDate={challengeStartDate}
                         todayDateString={todayDateString || undefined}
                     />
                 )}
 
-                <CalendarView logs={user.logs} challengeStartDate={challengeStartDate} challengeDay={activeChallengeDay} />
+                {!selectedOpponent && (
+                    <CalendarView logs={user.logs} challengeStartDate={challengeStartDate} challengeDay={activeChallengeDay} />
+                )}
                 {showAdminPanel && (
                     <AdminPanel
                         currentStartDate={challengeStartDate}

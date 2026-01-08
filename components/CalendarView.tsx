@@ -7,6 +7,9 @@ interface CalendarViewProps {
     logs: { [dayOfChallenge: number]: LogEntry };
     challengeStartDate: string;
     challengeDay: number;
+    title?: string;
+    containerClassName?: string;
+    showOnlyCurrentMonth?: boolean;
 }
 
 const statusColors: Record<LogStatus, string> = {
@@ -54,7 +57,7 @@ const CalendarDay: React.FC<{ log: LogEntry; currentChallengeDay: number }> = ({
     );
 };
 
-const CalendarView: React.FC<CalendarViewProps> = ({ logs, challengeStartDate, challengeDay }) => {
+const CalendarView: React.FC<CalendarViewProps> = ({ logs, challengeStartDate, challengeDay, title, containerClassName, showOnlyCurrentMonth }) => {
     const logsArray = Object.values(logs);
     if (!challengeStartDate || logsArray.length === 0) {
         return null;
@@ -79,6 +82,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({ logs, challengeStartDate, c
         return getMonthFromDate(today);
     }, [challengeDay, challengeStartDate]);
 
+    const visibleMonths = showOnlyCurrentMonth
+        ? months.filter((month) => month.monthIndex == currentMonthIndex)
+        : months;
+
     const [collapsedMonths, setCollapsedMonths] = useState<number[]>(() => {
         return months.filter(m => m.monthIndex < currentMonthIndex).map(m => m.monthIndex);
     });
@@ -91,11 +98,13 @@ const CalendarView: React.FC<CalendarViewProps> = ({ logs, challengeStartDate, c
         );
     };
 
+    const wrapperClassName = `bg-gray-800/50 p-4 sm:p-6 rounded-xl shadow-inner ${containerClassName ?? 'mt-8'}`;
+
     return (
-        <div className="bg-gray-800/50 p-4 sm:p-6 rounded-xl shadow-inner mt-8">
-            <h2 className="text-xl font-bold text-white mb-4">Yearly Progress</h2>
+        <div className={wrapperClassName}>
+            <h2 className="text-xl font-bold text-white mb-4">{title ?? 'Yearly Progress'}</h2>
             <div className="space-y-6">
-                {months.map((month) => {
+                {visibleMonths.map((month) => {
                     const isCollapsed = collapsedMonths.includes(month.monthIndex);
                     return (
                         <div key={`${month.year}-${month.monthIndex}`}>

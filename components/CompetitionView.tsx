@@ -2,16 +2,18 @@
 import React from 'react';
 import type { User, LogEntry } from '../types';
 import StatsCard from './StatsCard';
+import CalendarView from './CalendarView';
 import { ChartBarIcon, CheckCircleIcon } from './Icons';
 
 interface CompetitionViewProps {
     user1: User;
     user2: User;
     challengeDay: number;
+    challengeStartDate: string;
     todayDateString?: string;
 }
 
-const UserCompetitionProfile: React.FC<{user: User; challengeDay: number; todayDateString?: string}> = ({ user, challengeDay, todayDateString }) => {
+const UserCompetitionProfile: React.FC<{user: User; challengeDay: number; challengeStartDate: string; todayDateString?: string}> = ({ user, challengeDay, challengeStartDate, todayDateString }) => {
     const logs = Object.values(user.logs);
     // Treat over-achieved or any log that meets/exceeds the goal as completed for rate calculations
     const completedDays = logs.filter((l: LogEntry) => {
@@ -61,19 +63,27 @@ const UserCompetitionProfile: React.FC<{user: User; challengeDay: number; todayD
                     icon={<CheckCircleIcon className="w-6 h-6 text-green-400" />}
                 />
             </div>
+            <CalendarView
+                logs={user.logs}
+                challengeStartDate={challengeStartDate}
+                challengeDay={challengeDay}
+                title={``}
+                containerClassName="mt-4"
+                showOnlyCurrentMonth
+            />
         </div>
     );
 };
 
-const CompetitionView: React.FC<CompetitionViewProps> = ({ user1, user2, challengeDay, todayDateString }) => {
+const CompetitionView: React.FC<CompetitionViewProps> = ({ user1, user2, challengeDay, challengeStartDate, todayDateString }) => {
     if (challengeDay <= 0) return null;
 
     return (
         <div className="mt-8 bg-gray-900/50 p-4 sm:p-6 rounded-xl shadow-inner">
             <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
-                <UserCompetitionProfile user={user1} challengeDay={challengeDay} todayDateString={todayDateString} />
+                <UserCompetitionProfile user={user1} challengeDay={challengeDay} challengeStartDate={challengeStartDate} todayDateString={todayDateString} />
                 <div className="text-4xl font-black text-gray-600 p-2">VS</div>
-                <UserCompetitionProfile user={user2} challengeDay={challengeDay} todayDateString={todayDateString} />
+                <UserCompetitionProfile user={user2} challengeDay={challengeDay} challengeStartDate={challengeStartDate} todayDateString={todayDateString} />
             </div>
         </div>
     );
