@@ -46,14 +46,30 @@ const CalendarDay: React.FC<{ log: LogEntry; currentChallengeDay: number; onClic
     const isFuture = log.dayOfChallenge > currentChallengeDay;
     const canEdit = !isFuture && !!onClick;
 
+    const progress = log.goal > 0 ? log.pushupsDone / log.goal : 0;
+    let iconSrc = null;
+    if (log.pushupsDone > log.goal) iconSrc = '/110.svg';
+    else if (progress >= 1) iconSrc = '/100.svg';
+    else if (progress >= 0.75) iconSrc = '/75.svg';
+    else if (progress >= 0.5) iconSrc = '/50.svg';
+    else if (progress >= 0.25) iconSrc = '/25.svg';
+
     return (
         <div className="relative group">
             <button
                 onClick={() => canEdit && onClick?.(log)}
                 disabled={!canEdit}
-                className={`w-full aspect-square rounded ${colorClass} transition-all duration-200 ${canEdit ? 'hover:scale-110 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-500 z-10' : 'cursor-default'}`}
+                className={`w-full aspect-square rounded ${colorClass} transition-all duration-200 ${canEdit ? 'hover:scale-110 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-cyan-500 z-10' : 'cursor-default'} flex items-center justify-center overflow-hidden`}
                 aria-label={`Day ${log.dayOfChallenge}: ${log.goal} push-ups, ${log.pushupsDone} done`}
-            />
+            >
+                {iconSrc && (
+                    <img
+                        src={iconSrc}
+                        alt=""
+                        className="w-3/4 h-3/4 object-contain pointer-events-none opacity-80"
+                    />
+                )}
+            </button>
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
                 <p>Day {log.dayOfChallenge}: {log.goal} push-ups</p>
                 <p>Date: {log.date}</p>
