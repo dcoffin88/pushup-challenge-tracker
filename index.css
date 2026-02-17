@@ -2,6 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --background: #ffffff;
+  --surface: #f3f4f6;
+  --surface-2: #e5e7eb;
+  --surface-3: #d1d5db;
+  --primary-text: #111827;
+  --secondary-text: #4b5563;
+  --border: #e5e7eb;
+  --hover: #f9fafb;
+}
+
+.dark {
+  --background: #111827;
+  --surface: #1f2937;
+  --surface-2: #374151;
+  --surface-3: #4b5563;
+  --primary-text: #f9fafb;
+  --secondary-text: #9ca3af;
+  --border: #374151;
+  --hover: #1f2937;
+}
+
 body {
-  @apply bg-gray-900 text-gray-100;
+  background-color: var(--background);
+  color: var(--primary-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hide number input spinners */
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spinner {
+  -moz-appearance: textfield;
+  appearance: none;
 }

@@ -5,9 +5,10 @@ interface CountdownScreenProps {
     startDate: string;
     onLogout: () => void;
     userInitials: string;
+    theme: 'light' | 'dark';
 }
 
-const CountdownScreen: React.FC<CountdownScreenProps> = ({ startDate, onLogout, userInitials }) => {
+const CountdownScreen: React.FC<CountdownScreenProps> = ({ startDate, onLogout, userInitials, theme }) => {
     const calculateTimeLeft = () => {
         const difference = +new Date(startDate) - +new Date();
         let timeLeft = {};
@@ -22,7 +23,7 @@ const CountdownScreen: React.FC<CountdownScreenProps> = ({ startDate, onLogout, 
         }
         return timeLeft;
     };
-    
+
     const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
 
     useEffect(() => {
@@ -48,24 +49,29 @@ const CountdownScreen: React.FC<CountdownScreenProps> = ({ startDate, onLogout, 
             </div>
         );
     });
-    
+
     return (
-        <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center p-4 relative">
-             <div className="absolute top-6 right-6 flex items-center space-x-4">
-                <span className="text-gray-300 font-bold hidden sm:inline">Logged in as {userInitials}</span>
-                <button onClick={onLogout} className="flex items-center space-x-2 bg-gray-700 hover:bg-red-500 px-4 py-2 rounded-lg transition-colors">
+        <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'} flex flex-col items-center justify-center p-4 relative transition-colors duration-300`}>
+            <div className="absolute top-6 right-6 flex items-center gap-4">
+                <span className="text-theme-secondary-text font-bold hidden sm:inline">Logged in as {userInitials}</span>
+                <button
+                    onClick={onLogout}
+                    className="flex items-center gap-2 bg-theme-surface hover:bg-theme-surface-2 text-theme-primary-text font-bold py-2 px-4 rounded-lg transition shadow-sm border border-theme-border"
+                >
                     <LogoutIcon className="w-5 h-5" />
                     <span className="hidden sm:inline">Logout</span>
                 </button>
             </div>
             <div className="w-full max-w-2xl text-center">
-                <DumbbellIcon className="w-20 h-20 text-cyan-400 mx-auto mb-4 animate-pulse" />
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">Challenge Starts Soon!</h1>
-                <p className="text-lg text-gray-400 mb-12">Get ready!</p>
+                <div className="bg-cyan-500 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-cyan-500/20 animate-pulse">
+                    <DumbbellIcon className="w-12 h-12 text-white" />
+                </div>
+                <h1 className="text-4xl md:text-5xl font-black text-theme-primary-text mb-2 tracking-tight">CHALLENGE STARTS SOON!</h1>
+                <p className="text-lg text-theme-secondary-text mb-12">Get ready for the grind.</p>
 
-                <div className="bg-gray-800/50 p-4 sm:p-8 rounded-lg shadow-2xl">
-                    <div className="flex flex-wrap justify-center items-center">
-                        {timerComponents.length ? timerComponents : <span>Loading...</span>}
+                <div className="bg-theme-surface p-6 sm:p-10 rounded-2xl shadow-xl border border-theme-border">
+                    <div className="flex flex-wrap justify-center items-center gap-4">
+                        {timerComponents.length ? timerComponents : <span className="text-theme-secondary-text">Loading...</span>}
                     </div>
                 </div>
             </div>

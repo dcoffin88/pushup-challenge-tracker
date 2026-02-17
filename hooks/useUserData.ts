@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { AppData, User } from '../types';
-import { getAppData, getOrCreateUser as apiGetOrCreateUser, logPushups as apiLogPushups, useBreakDay as apiUseBreakDay, setChallengeStartDate as apiSetChallengeStartDate } from '../utils/api';
+import { getAppData, getOrCreateUser as apiGetOrCreateUser, logPushups as apiLogPushups, useBreakDay as apiUseBreakDay, setChallengeStartDate as apiSetChallengeStartDate, correctProgress as apiCorrectProgress } from '../utils/api';
 import { setConfiguredTimezone } from '../utils/dateHelpers';
 
 export const useUserData = () => {
@@ -55,6 +55,11 @@ export const useUserData = () => {
         fetchData();
     }, [fetchData]);
 
+    const correctProgress = useCallback(async (initials: string, day: number, count: number) => {
+        await apiCorrectProgress(initials, day, count);
+        fetchData();
+    }, [fetchData]);
 
-    return { loading, data, getOrCreateUser, logPushups, useBreakDay, getUsers, updateUser, setChallengeStartDate };
+
+    return { loading, data, getOrCreateUser, logPushups, useBreakDay, getUsers, updateUser, setChallengeStartDate, correctProgress };
 };

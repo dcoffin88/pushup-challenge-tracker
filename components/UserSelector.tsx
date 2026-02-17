@@ -4,27 +4,27 @@ import type { User } from '../types';
 
 interface UserSelectorProps {
     users: User[];
-    currentUserInitials: string;
-    onSelectUser: (initials: string) => void;
-    selectedValue: string;
+    onSelect: (user: User | null) => void;
+    selectedUser: User | null;
 }
 
-const UserSelector: React.FC<UserSelectorProps> = ({ users, currentUserInitials, onSelectUser, selectedValue }) => {
-    const otherUsers = users.filter(u => u.initials !== currentUserInitials);
-
+const UserSelector: React.FC<UserSelectorProps> = ({ users, onSelect, selectedUser }) => {
     return (
-        <div>
-            <label htmlFor="user-select" className="block text-sm font-medium text-gray-400 mb-1">
+        <div className="w-full max-w-xs mx-auto">
+            <label htmlFor="user-select" className="block text-sm font-medium text-theme-secondary-text mb-2 text-center">
                 Select user to compare
             </label>
             <select
                 id="user-select"
-                value={selectedValue}
-                onChange={(e) => onSelectUser(e.target.value)}
-                className="w-full bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                value={selectedUser?.initials || ''}
+                onChange={(e) => {
+                    const user = users.find(u => u.initials === e.target.value) || null;
+                    onSelect(user);
+                }}
+                className="w-full bg-theme-surface-2 border border-theme-border rounded-lg py-2.5 px-4 text-theme-primary-text font-medium focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all appearance-none cursor-pointer"
             >
                 <option value="">-- Choose Opponent --</option>
-                {otherUsers.map(user => (
+                {users.map(user => (
                     <option key={user.initials} value={user.initials}>
                         {user.initials}
                     </option>

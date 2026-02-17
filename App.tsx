@@ -10,11 +10,25 @@ const SESSION_MAX_MS = 60 * 60 * 1000;
 const SESSION_LAST_ACTIVE_KEY = 'sessionLastActiveAt';
 
 const App: React.FC = () => {
-    const { loading, data, getOrCreateUser, logPushups, useBreakDay, getUsers, updateUser, setChallengeStartDate } = useUserData();
+    const { loading, data, getOrCreateUser, logPushups, useBreakDay, getUsers, updateUser, setChallengeStartDate, correctProgress } = useUserData();
     const [currentUser, setCurrentUser] = useState<User | null>(() => {
         const storedUser = localStorage.getItem('currentUser');
         return storedUser ? JSON.parse(storedUser) : null;
     });
+    const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+        const storedTheme = localStorage.getItem('theme') as 'light' | 'dark' | null;
+        if (storedTheme) return storedTheme;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    });
+
+    useEffect(() => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        localStorage.setItem('theme', theme);
+    }, [theme]);
 
     useEffect(() => {
         if (currentUser) {
@@ -28,7 +42,7 @@ const App: React.FC = () => {
         if (currentUser && data?.users[currentUser.initials]) {
             const latestUserData = data.users[currentUser.initials];
             if (JSON.stringify(currentUser) !== JSON.stringify(latestUserData)) {
-               setCurrentUser(latestUserData);
+                setCurrentUser(latestUserData);
             }
         }
     }, [data, currentUser]);
@@ -47,6 +61,10 @@ const App: React.FC = () => {
         setCurrentUser(null);
     }, []);
 
+    const toggleTheme = useCallback(() => {
+        setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    }, []);
+
     const handleLogPushups = useCallback(async (day: number, count: number) => {
         if (currentUser) {
             await logPushups(currentUser, day, count);
@@ -59,34 +77,35 @@ const App: React.FC = () => {
         }
         return false;
     }, [currentUser, useBreakDay]);
-    
+
     if (loading || !data) {
-        return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading Challenge...</div>;
+        return <div className={`min-h-screen ${theme === 'dark' ? 'bg-gray-900' : 'bg-white'} flex items-center justify-center text-current`}>Loading Challenge...</div>;
     }
 
     const challengeInfo = getChallengeDayInfo(data.challengeStartDate);
     const isChallengeStarted = challengeInfo.isChallengeActive || challengeInfo.challengeDay === -1;
 
     if (!currentUser) {
-         return (
-            <LoginScreen 
-                onLogin={handleLogin} 
-                getOrCreateUser={getOrCreateUser} 
+        return (
+            <LoginScreen
+                onLogin={handleLogin}
+                getOrCreateUser={getOrCreateUser}
                 isChallengeConfigured={!!data.challengeStartDate}
-                isChallengeStarted={isChallengeStarted}
+                isChallengeStarted={data.challengeStartDate ? new Date(data.challengeStartDate) <= new Date() : false}
+                theme={theme}
             />
         );
     }
 
     if (data.challengeStartDate && !challengeInfo.isChallengeActive && challengeInfo.timeUntilStart > 0) {
         const countdownStartDate = getDateFromChallengeDay(1, data.challengeStartDate).toISOString();
-        return <CountdownScreen startDate={countdownStartDate} onLogout={handleLogout} userInitials={currentUser.initials} />;
+        return <CountdownScreen startDate={countdownStartDate} onLogout={handleLogout} userInitials={currentUser.initials} theme={theme} />;
     }
 
     return (
-        <Dashboard 
-            user={currentUser} 
-            onLogPushups={handleLogPushups} 
+        <Dashboard
+            user={currentUser}
+            onLogPushups={handleLogPushups}
             onUseBreakDay={handleUseBreakDay}
             onLogout={handleLogout}
             allUsers={getUsers()}
@@ -94,6 +113,9 @@ const App: React.FC = () => {
             challengeStartDate={data.challengeStartDate}
             timezoneId={data.timezoneId}
             onSetChallengeStartDate={setChallengeStartDate}
+            onCorrectProgress={correctProgress}
+            theme={theme}
+            onToggleTheme={toggleTheme}
         />
     );
 };
