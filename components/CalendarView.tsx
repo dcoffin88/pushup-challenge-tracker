@@ -96,7 +96,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ logs, challengeStartDate, c
         : months;
 
     const [collapsedMonths, setCollapsedMonths] = useState<number[]>(() => {
-        return months.filter(m => m.monthIndex < currentMonthIndex).map(m => m.monthIndex);
+        return months.filter(m => m.monthIndex !== currentMonthIndex).map(m => m.monthIndex);
     });
 
     const toggleMonth = (monthIndex: number) => {
